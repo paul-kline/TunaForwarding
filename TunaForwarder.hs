@@ -14,7 +14,7 @@ import Control.Monad.State.Strict
 import Control.Concurrent.MVar
 
 import Control.Concurrent 
-
+import Data.List (intersperse)
 import System.Timeout
 mainport = 55111
 
@@ -32,6 +32,8 @@ main = do
 
             Scotty.post "/" $ do
               liftIO $ putStrLn "RECEIVED POST" 
+              state <- liftIO $ readMVar mvarls 
+              liftIO $ putStrLn $ "HERE IS THE STATE: " ++ (join (intersperse ", " (map (show . fst) state) ) )
               --reads in "potential" request (parsing it could fail). 
               --Note: no en/de-crypting is yet taking place.
               a <- (param "request") :: ActionM LazyText.Text
@@ -100,7 +102,9 @@ main = do
                                    Scotty.json (res)       
                      else do 
                        mysend toip toport val
-                       Scotty.text "I forwarded for you"
+                       liftIO $ putStrLn "forwarded regular message"
+                       Scotty.json val
+                       
   return ()
 mysend toip toport val = do 
    c <- liftIO $ openConnection toip toport
