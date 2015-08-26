@@ -41,6 +41,7 @@ main' = do
                   liftIO $ putStrLn $  "successfully received: " ++ (show (whoisSending, toip,toport,val))
                   conn <- liftIO $ mysend toip toport val 
                   mvalback <- liftIO  $ timeout 10000 $ myReceive conn 
+                  closeConnection conn
                   case mvalback of 
                     Nothing -> do 
                        Scotty.json (toJSON ( ("no responseBack","") :: (String, String)))
